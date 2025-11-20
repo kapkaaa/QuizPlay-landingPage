@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, Gamepad2, Trophy, Target, Users, BookOpen, CheckCircle, Star, Menu, X, MessageCircle, Mail, Phone, TrendingUp, Clock, Shield, ArrowRight, Play } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -16,7 +16,7 @@ export default function QuizPlayLanding() {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // State untuk data dari database
   const [statistics, setStatistics] = useState({
     totalStudents: 0,
@@ -26,7 +26,7 @@ export default function QuizPlayLanding() {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch statistik dari database
+  // Fetch statistik
   useEffect(() => {
     fetchStatistics();
     fetchTestimonials();
@@ -34,24 +34,12 @@ export default function QuizPlayLanding() {
 
   const fetchStatistics = async () => {
     try {
-      // Hitung total siswa
-      const { count: studentCount } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'student');
+      const { count: studentCount } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student');
+      const { count: schoolCount } = await supabase.from('schools').select('*', { count: 'exact', head: true });
 
-      // Hitung total sekolah
-      const { count: schoolCount } = await supabase
-        .from('schools')
-        .select('*', { count: 'exact', head: true });
+      const { data: attemptsData } = await supabase.from('quiz_attempts').select('percentage').eq('status', 'completed');
 
-      // Hitung rata-rata kepuasan dari quiz attempts
-      const { data: attemptsData } = await supabase
-        .from('quiz_attempts')
-        .select('percentage')
-        .eq('status', 'completed');
-
-      let avgSatisfaction = 98; // default
+      let avgSatisfaction = 98;
       if (attemptsData && attemptsData.length > 0) {
         const total = attemptsData.reduce((sum, item) => sum + (item.percentage || 0), 0);
         avgSatisfaction = Math.round(total / attemptsData.length);
@@ -64,36 +52,33 @@ export default function QuizPlayLanding() {
       });
     } catch (error) {
       console.error('Error fetching statistics:', error);
-      // Gunakan data default jika error
-      setStatistics({
-        totalStudents: 1000,
-        totalSchools: 50,
-        satisfactionRate: 98
-      });
-    } finally {
-      setLoading(false);
+      setStatistics({ totalStudents: 1000, totalSchools: 50, satisfactionRate: 98 });
     }
   };
 
   const fetchTestimonials = async () => {
     try {
-      // Ambil testimoni dari tabel testimonials (kita perlu buat tabel ini)
       const { data, error } = await supabase
         .from('testimonials')
         .select('*')
         .eq('is_published', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error fetching testimonials:', error.message);
+        throw error;
+      }
 
       if (data && data.length > 0) {
+        console.log('Testimonials fetched:', data);
         setTestimonials(data);
       } else {
-        
+        console.log('No testimonials found');
       }
     } catch (error) {
-      console.error('Error fetching testimonials:', error);
+      console.error('Error in fetchTestimonials:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,25 +87,20 @@ export default function QuizPlayLanding() {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase
-        .from('contact_submissions')
-        .insert([
-          {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            message: formData.message,
-            status: 'new'
-          }
-        ]);
-
+      const { data, error } = await supabase.from('contact_submissions').insert([{
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        status: 'new'
+      }]);
       if (error) throw error;
 
-      alert('✅ Terima kasih! Pesan Anda berhasil dikirim. Tim kami akan segera menghubungi Anda.');
+      alert('✅ Terima kasih! Pesan Anda berhasil dikirim.');
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('❌ Terjadi kesalahan. Silakan coba lagi atau hubungi kami via WhatsApp.');
+      alert('❌ Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
     }
@@ -138,7 +118,7 @@ export default function QuizPlayLanding() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Gamepad2 className="w-8 h-8 text-purple-600" />
+              <img src="" alt="" />
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 QuizPlay
               </span>
@@ -178,7 +158,7 @@ export default function QuizPlayLanding() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="inline-block px-4 py-2 bg-purple-100 rounded-full text-purple-700 text-sm font-semibold">
-                🎮 Platform Edukasi #1 di Indonesia
+                🎮 learn hard, play smart.
               </div>
               <h1 className="text-5xl md:text-6xl font-bold leading-tight">
                 Belajar Lebih Seru dengan{' '}
@@ -201,26 +181,6 @@ export default function QuizPlayLanding() {
                   <MessageCircle className="w-5 h-5" />
                   <span>Hubungi Kami</span>
                 </button>
-              </div>
-              <div className="flex items-center space-x-8 pt-4">
-                <div>
-                  <div className="text-3xl font-bold text-purple-600">
-                    {loading ? '...' : `${statistics.totalStudents}+`}
-                  </div>
-                  <div className="text-gray-600 text-sm">Siswa Aktif</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">
-                    {loading ? '...' : `${statistics.totalSchools}+`}
-                  </div>
-                  <div className="text-gray-600 text-sm">Sekolah Partner</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-pink-600">
-                    {loading ? '...' : `${statistics.satisfactionRate}%`}
-                  </div>
-                  <div className="text-gray-600 text-sm">Kepuasan</div>
-                </div>
               </div>
             </div>
             <div className="relative">
@@ -348,7 +308,7 @@ export default function QuizPlayLanding() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials - Scrollable Horizontal */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -356,26 +316,33 @@ export default function QuizPlayLanding() {
             <p className="text-xl text-gray-600">Testimoni dari guru dan siswa yang telah menggunakan QuizPlay</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((test) => (
-              <div key={test.id} className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
-                <div className="flex mb-4">
-                  {[...Array(test.rating || 5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                  ))}
-                </div>
-                <p className="text-gray-700 mb-4 italic">"{test.text || test.testimonial_text}"</p>
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center text-white font-bold">
-                    {(test.name || test.user_name).charAt(0)}
-                  </div>
+          <div className="overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex space-x-6 pb-4">
+              {testimonials.map((item, i) => (
+                <div
+                  key={item.id || i}
+                  className="flex-shrink-0 w-full md:w-[300px] lg:w-[350px] bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-2xl shadow-lg h-[300px] flex flex-col justify-between"
+                >
                   <div>
-                    <div className="font-bold">{test.name || test.user_name}</div>
-                    <div className="text-sm text-gray-600">{test.role || test.user_role}</div>
+                    <div className="flex mb-4">
+                      {[...Array(item.rating || 5)].map((_, j) => (
+                        <Star key={j} className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                      ))}
+                    </div>
+                    <p className="text-gray-700 mb-4 italic">"{item.testimonial_text}"</p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-400 rounded-full flex items-center justify-center text-white font-bold">
+                      {(item.user_name || 'A').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-bold">{item.user_name}</div>
+                      <div className="text-sm text-gray-600">{item.user_role}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
