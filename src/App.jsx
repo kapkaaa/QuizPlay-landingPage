@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, Gamepad2, Trophy, Target, Users, BookOpen, CheckCircle, Star, Menu, X, MessageCircle, Mail, Phone, TrendingUp, Clock, Shield, ArrowRight, Play } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
+import { Link } from 'react-router-dom';
 
 // Konfigurasi Supabase - GANTI dengan kredensial Anda
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://cllzeodekryrguojsjvr.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbHplb2Rla3J5cmd1b2pzanZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MzI4OTYsImV4cCI6MjA3OTEwODg5Nn0.DnSceF8Y_SUEJI2PnBaSMeKoOFUXdmCVMwJlt49Rk6A';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export default function QuizPlayLanding() {
+function QuizPlayLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -24,12 +25,14 @@ export default function QuizPlayLanding() {
     satisfactionRate: 0
   });
   const [testimonials, setTestimonials] = useState([]);
+  const [pricingPlans, setPricingPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch statistik
+  // Fetch data dari database
   useEffect(() => {
     fetchStatistics();
     fetchTestimonials();
+    fetchPricingPlans();
   }, []);
 
   const fetchStatistics = async () => {
@@ -79,6 +82,35 @@ export default function QuizPlayLanding() {
       console.error('Error in fetchTestimonials:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch pricing plans dari tabel templates
+  const fetchPricingPlans = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('templates')
+        .select('*')
+        .eq('is_published', true)
+        .order('price', { ascending: true });
+
+      if (error) {
+        console.error('Supabase error fetching pricing plans:', error.message);
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        setPricingPlans(data);
+      } else {
+        console.log('No pricing plans found');
+      }
+    } catch (error) {
+      console.error('Error in fetchPricingPlans:', error);
+    } finally {
+      // Set loading to false after all data is fetched
+      if (statistics.totalStudents !== 0 && testimonials.length !== 0) {
+        setLoading(false);
+      }
     }
   };
 
@@ -229,11 +261,11 @@ export default function QuizPlayLanding() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Gamepad2, title: 'Gamifikasi Penuh', desc: 'Sistem poin, badge, dan level yang membuat belajar seperti bermain game', color: 'purple' },
+              { icon: Gamepad2, title: 'Gamifikasi Penuh', desc: 'Sistem poin, dan level yang membuat belajar seperti bermain game', color: 'purple' },
               { icon: TrendingUp, title: 'Motivasi Belajar', desc: 'Tingkatkan semangat siswa dengan kompetisi sehat dan reward menarik', color: 'blue' },
               { icon: Trophy, title: 'Progress & Leaderboard', desc: 'Pantau perkembangan dan bersaing dengan teman secara real-time', color: 'yellow' },
               { icon: Target, title: 'Multi-Platform', desc: 'Akses dari smartphone, tablet, atau komputer kapan saja, di mana saja', color: 'green' },
-              { icon: BookOpen, title: 'Materi Fleksibel', desc: 'Guru dapat menyesuaikan soal dan materi sesuai kebutuhan kelas', color: 'pink' },
+              { icon: BookOpen, title: 'Materi Fleksibel', desc: 'Guru dapat menyesuaikan materi sesuai kebutuhan kelas', color: 'pink' },
               { icon: Shield, title: 'Aman & Terpercaya', desc: 'Data siswa terlindungi dengan enkripsi tingkat enterprise', color: 'indigo' }
             ].map((feature, i) => (
               <div key={i} className={`p-6 rounded-2xl bg-gradient-to-br from-${feature.color}-50 to-${feature.color}-100 hover:shadow-xl transition transform hover:-translate-y-2`}>
@@ -254,15 +286,15 @@ export default function QuizPlayLanding() {
             <p className="text-xl text-gray-600">Mudah digunakan dalam 4 langkah sederhana</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full h-auto">
             {[
-              { step: '01', title: 'Guru Membuat Soal', desc: 'Guru membuat quiz dengan mudah melalui dashboard intuitif', icon: BookOpen },
-              { step: '02', title: 'Siswa Bermain Quiz', desc: 'Siswa mengakses quiz dan bermain seperti game seru', icon: Gamepad2 },
-              { step: '03', title: 'Dapatkan Poin & Badge', desc: 'Sistem otomatis memberikan reward untuk motivasi', icon: Trophy },
-              { step: '04', title: 'Lihat Laporan', desc: 'Guru melihat analisis lengkap progress siswa', icon: TrendingUp }
+              { step: '01', title: 'Guru Membuat Soal', desc: 'Guru memberikan materi pembelajaran kepada kami lalu kami memproses game yang di inginkan', icon: BookOpen },
+              { step: '02', title: 'Siswa Bermain Game Pembelajaran', desc: 'Siswa mengakses website dan bermain seperti game seru', icon: Gamepad2 },
+              { step: '03', title: 'Dapatkan Poin', desc: 'Sistem otomatis memberikan reward untuk motivasi', icon: Trophy },
+              { step: '04', title: 'Lihat Leaderboard', desc: 'Guru dan siswa dapat melihat progress pengerjaan siswa', icon: TrendingUp }
             ].map((step, i) => (
               <div key={i} className="relative">
-                <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+                <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition w-[250px] h-[280px] flex flex-col">
                   <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
                     {step.step}
                   </div>
@@ -293,7 +325,7 @@ export default function QuizPlayLanding() {
             {[
               { icon: Users, title: 'Tingkatkan Engagement', desc: 'Siswa 3x lebih aktif dalam pembelajaran' },
               { icon: Star, title: 'Menyenangkan & Interaktif', desc: 'Belajar terasa seperti bermain game' },
-              { icon: CheckCircle, title: 'Mudah Digunakan', desc: 'Interface intuitif, setup dalam 5 menit' },
+              { icon: CheckCircle, title: 'Mudah Digunakan', desc: 'Interface intuitif, Siswa tinggal memainkan' },
               { icon: Clock, title: 'Hemat Waktu & Biaya', desc: 'Otomasi penilaian dan laporan instan' }
             ].map((item, i) => (
               <div key={i} className="text-center">
@@ -351,55 +383,72 @@ export default function QuizPlayLanding() {
       <section id="pricing" className="py-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Paket Berlangganan</h2>
-            <p className="text-xl text-gray-600">Pilih paket yang sesuai dengan kebutuhan Anda</p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Paket Game</h2>
+            <p className="text-xl text-gray-600">Pilih game yang sesuai dengan kebutuhan Anda</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-gray-200 hover:border-purple-300 transition">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">Paket Sekolah</h3>
-                <div className="text-4xl font-bold text-purple-600 mb-2">Custom</div>
-                <p className="text-gray-600">Harga disesuaikan jumlah siswa</p>
-              </div>
-              <ul className="space-y-4 mb-8">
-                {['Unlimited quiz & soal', 'Dashboard admin lengkap', 'Laporan & analitik detail', 'Support prioritas', 'Training untuk guru', 'Custom branding'].map((item, i) => (
-                  <li key={i} className="flex items-center space-x-2">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button 
-                onClick={() => scrollToSection('contact')}
-                className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
-              >
-                Request Proposal
-              </button>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pricingPlans.map((plan, index) => (
+                <div
+                  key={plan.id}
+                  className={`bg-white p-6 md:p-8 rounded-3xl shadow-xl border-2 w-full flex flex-col justify-between ${
+                    plan.name.toLowerCase().includes('populer') || index === 1
+                      ? 'border-purple-300 relative overflow-hidden'
+                      : 'border-gray-200 hover:border-purple-300'
+                  } transition`}
+                >
+                  {(plan.name.toLowerCase().includes('populer') || index === 1) && (
+                    <div className="absolute top-4 right-4 bg-yellow-400 text-purple-900 px-3 py-1 rounded-full text-sm font-bold">
+                      POPULER
+                    </div>
+                  )}
 
-            <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-8 rounded-3xl shadow-xl text-white relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-yellow-400 text-purple-900 px-3 py-1 rounded-full text-sm font-bold">
-                POPULER
-              </div>
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">Paket Individu</h3>
-                <div className="text-4xl font-bold mb-2">Rp 49K</div>
-                <p className="opacity-90">per bulan</p>
-              </div>
-              <ul className="space-y-4 mb-8">
-                {['Akses semua fitur', '100 quiz per bulan', 'Progress tracking', 'Leaderboard pribadi', 'Mobile app access', 'Email support'].map((item, i) => (
-                  <li key={i} className="flex items-center space-x-2">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-3 bg-white text-purple-600 rounded-lg font-semibold hover:shadow-lg transition">
-                Mulai Sekarang
-              </button>
+                  <div className="text-center mb-6 flex-grow">
+                    <h3 className="text-2xl font-bold mb-2 break-words">{plan.name}</h3>
+                    <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">
+                      {plan.price === 0 ? 'Gratis' : `Rp ${plan.price.toLocaleString()}`}
+                      {plan.price > 0 && plan.category !== 'paket sekolah' && (
+                        <span className="text-lg"></span>
+                      )}
+                    </div>
+                    <p className="text-gray-600 text-sm md:text-base break-words">
+                      {plan.description?.length > 100 
+                        ? `${plan.description.substring(0, 100)}...` 
+                        : plan.description}
+                    </p>
+                    {plan.description?.length > 100 && (
+                      <p className="text-xs text-gray-500 italic mt-1">Lihat detail</p>
+                    )}
+                  </div>
+
+                  <ul className="space-y-3 md:space-y-4 mb-8 flex-grow">
+                    {plan.features && Array.isArray(plan.features) ? (
+                      plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-center space-x-2 text-sm md:text-base">
+                          <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                          <span className="break-words">{feature}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-500">Fitur tidak tersedia</li>
+                    )}
+                  </ul>
+
+                  <Link
+                    to={`/product-detail/${plan.id}`}
+                    className="w-full py-3 rounded-lg font-semibold hover:shadow-lg transition bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm md:text-base inline-flex items-center justify-center"
+                  >
+                    Lihat Detail
+                  </Link>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -571,3 +620,5 @@ export default function QuizPlayLanding() {
     </div>
   );
 }
+
+export default QuizPlayLanding;
