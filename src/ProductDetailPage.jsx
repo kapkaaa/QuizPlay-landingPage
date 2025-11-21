@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button 
@@ -145,16 +145,15 @@ export default function ProductDetailPage() {
                   <span className="text-gray-600">{plan.duration || 'Tidak terbatas'}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="font-semibold text-gray-700">Jumlah Game:</span>
-                  <span className="text-gray-600">{plan.game_count || 'Custom'}</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-semibold text-gray-700">Kapasitas Siswa:</span>
                   <span className="text-gray-600">{plan.student_capacity || 'Custom'}</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <div className="flex justify-between items-start py-3 border-b border-gray-100 flex-wrap">
                   <span className="font-semibold text-gray-700">Fitur Tambahan:</span>
-                  <span className="text-gray-600">{plan.additional_features || 'Tersedia'}</span>
+
+                  <span className="text-gray-600 max-w-[70%] text-right break-words">
+                    {plan.features || 'Tersedia'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -162,7 +161,7 @@ export default function ProductDetailPage() {
 
           {/* Right Column - Pricing Card */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 bg-white p-6 md:p-8 rounded-3xl shadow-xl border-2 border-purple-300 relative overflow-hidden">
+            <div className="sticky top-24 bg-white p-6 md:p-8 rounded-3xl shadow-xl border-2 border-purple-300 relative overflow-hidden">
               {/* Popular Badge */}
               {(plan.name.toLowerCase().includes('populer') || plan.is_popular) && (
                 <div className="absolute top-4 right-4 bg-yellow-400 text-purple-900 px-3 py-1 rounded-full text-sm font-bold">
@@ -184,7 +183,7 @@ export default function ProductDetailPage() {
                     <div className="text-4xl md:text-5xl font-bold text-purple-600 mb-2">
                       Rp {discountedPrice.toLocaleString()}
                       {!plan.category?.toLowerCase().includes('sekolah') && (
-                        <span className="text-lg">/bulan</span>
+                        <span className="text-lg"></span>
                       )}
                     </div>
                     {discountPercentage > 0 && (
@@ -198,51 +197,13 @@ export default function ProductDetailPage() {
                     Gratis
                   </div>
                 )}
-
-                <p className="text-gray-600 mt-4">
-                  {plan.billing_cycle || plan.category?.toLowerCase().includes('sekolah') 
-                    ? 'Tagihan tahunan' 
-                    : 'Tagihan bulanan'}
-                </p>
               </div>
-
-              {/* Duration Selector */}
-              {originalPrice > 0 && (
-                <div className="mb-6">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => setSelectedDuration('monthly')}
-                      className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition ${
-                        selectedDuration === 'monthly'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      Bulanan
-                    </button>
-                    <button
-                      onClick={() => setSelectedDuration('yearly')}
-                      className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition ${
-                        selectedDuration === 'yearly'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      Tahunan
-                    </button>
-                  </div>
-                </div>
-              )}
 
               {/* Benefits */}
               <div className="space-y-4 mb-8">
                 <p className="flex items-center space-x-2">
                   <CheckCircle className="w-5 h-5 text-green-500" />
                   <span>Gratis pengiriman</span>
-                </p>
-                <p className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>Garansi uang kembali 30 hari</span>
                 </p>
                 <p className="flex items-center space-x-2">
                   <CheckCircle className="w-5 h-5 text-green-500" />
@@ -255,9 +216,16 @@ export default function ProductDetailPage() {
               </div>
 
               {/* CTA Button */}
-              <button className="w-full py-4 rounded-lg font-semibold hover:shadow-lg transition bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg">
-                {originalPrice === 0 ? 'Coba Gratis Sekarang' : 'Beli Sekarang'}
-              </button>
+              <div className="w-full">
+                <a
+                  href="https://lynk.id/quizplay"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full block py-4 rounded-lg font-semibold hover:shadow-lg transition bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg text-center"
+                >
+                  Beli Sekarang
+                </a>
+              </div>
 
               {/* Security Info */}
               <div className="mt-6 text-center text-sm text-gray-500">
