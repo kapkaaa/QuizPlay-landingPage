@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, Gamepad2, Trophy, Target, Users, BookOpen, CheckCircle, Star, Menu, X, MessageCircle, Mail, Phone, TrendingUp, Clock, Shield, ArrowRight, Play } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { Link } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 
 // Konfigurasi Supabase - GANTI dengan kredensial Anda
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://cllzeodekryrguojsjvr.supabase.co';
@@ -28,8 +29,9 @@ function QuizPlayLanding() {
   const [pricingPlans, setPricingPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data dari database
+  // Inisialisasi EmailJS dan fetch data dari database
   useEffect(() => {
+    emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '');
     fetchStatistics();
     fetchTestimonials();
     fetchPricingPlans();
@@ -119,6 +121,7 @@ function QuizPlayLanding() {
     setIsSubmitting(true);
 
     try {
+      // Simpan ke database Supabase
       const { data, error } = await supabase.from('contact_submissions').insert([{
         name: formData.name,
         email: formData.email,
@@ -128,11 +131,35 @@ function QuizPlayLanding() {
       }]);
       if (error) throw error;
 
+      // Kirim email menggunakan EmailJS - semua field dikirim
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        from_phone: formData.phone,
+        message: formData.message,
+        to_email: 'admin@quizplay.com' // Ganti dengan email tujuan Anda
+      };
+
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID || '',
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '',
+        templateParams,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
+      );
+
       alert('✅ Terima kasih! Pesan Anda berhasil dikirim.');
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('❌ Terjadi kesalahan. Silakan coba lagi.');
+      if (error.status === 400) {
+        alert('❌ Format data tidak valid. Silakan periksa kembali isian Anda.');
+      } else if (error.status === 401) {
+        alert('❌ Akses ditolak. Silakan hubungi administrator.');
+      } else if (error.status >= 500) {
+        alert('❌ Terjadi kesalahan pada server. Silakan coba lagi nanti.');
+      } else {
+        alert('❌ Terjadi kesalahan. Silakan coba lagi.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -155,7 +182,7 @@ function QuizPlayLanding() {
                 QuizPlay
               </span>
             </div>
-            
+
             <div className="hidden md:flex space-x-8">
               <button onClick={() => scrollToSection('features')} className="text-gray-700 hover:text-purple-600 transition">Fitur</button>
               <button onClick={() => scrollToSection('how-it-works')} className="text-gray-700 hover:text-purple-600 transition">Cara Kerja</button>
@@ -163,7 +190,7 @@ function QuizPlayLanding() {
               <button onClick={() => scrollToSection('contact')} className="text-gray-700 hover:text-purple-600 transition">Kontak</button>
             </div>
 
-            <button 
+            <button
               className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -206,7 +233,7 @@ function QuizPlayLanding() {
                   <Play className="w-5 h-5" />
                   <span>Coba Demo</span>
                 </button>
-                <button 
+                <button
                   onClick={() => scrollToSection('contact')}
                   className="px-8 py-4 border-2 border-purple-600 text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition flex items-center justify-center space-x-2"
                 >
@@ -258,7 +285,7 @@ function QuizPlayLanding() {
             <h2 className="text-4xl md:text-5xl font-bold mb-4">Fitur Unggulan QuizPlay</h2>
             <p className="text-xl text-gray-600">Semua yang Anda butuhkan untuk pembelajaran yang efektif</p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { icon: Gamepad2, title: 'Gamifikasi Penuh', desc: 'Sistem poin, dan level yang membuat belajar seperti bermain game', color: 'purple' },
@@ -417,8 +444,8 @@ function QuizPlayLanding() {
                       )}
                     </div>
                     <p className="text-gray-600 text-sm md:text-base break-words">
-                      {plan.description?.length > 100 
-                        ? `${plan.description.substring(0, 100)}...` 
+                      {plan.description?.length > 100
+                        ? `${plan.description.substring(0, 100)}...`
                         : plan.description}
                     </p>
                     {plan.description?.length > 100 && (
@@ -486,9 +513,9 @@ function QuizPlayLanding() {
 
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <a 
-                href="https://wa.me/628574880949" 
-                target="_blank" 
+              <a
+                href="https://wa.me/628574880949"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4 hover:shadow-xl transition"
               >
@@ -497,7 +524,7 @@ function QuizPlayLanding() {
                 </div>
                 <div>
                   <div className="font-semibold">WhatsApp</div>
-                  <div className="text-gray-600">+62 850-4880-6949</div>
+                  <div className="text-gray-600">+62 857-4880-6949</div>
                 </div>
               </a>
 
@@ -533,7 +560,7 @@ function QuizPlayLanding() {
                 disabled={isSubmitting}
               />
               <input
-                type="tel"
+                type="number"
                 placeholder="No. Telepon"
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
