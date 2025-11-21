@@ -218,7 +218,8 @@ export default function ProductDetailPage() {
               {/* CTA Button */}
               <div className="w-full">
                 <a
-                  href="https://lynk.id/quizplay"
+                  href="https://wa.me/6285748806949?text=Halo%2C%20saya%20mau%20membeli%20paket%20game%28hapus%20yang%20tidak%20anda%20butuhkan%29%0A-Teka%20Teki%20Silang%0A-Dungeoun%0A-Russian%20Roulette
+"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full block py-4 rounded-lg font-semibold hover:shadow-lg transition bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg text-center"
