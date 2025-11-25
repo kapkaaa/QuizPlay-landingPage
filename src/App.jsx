@@ -454,7 +454,7 @@ function QuizPlayLanding() {
                     )}
                   </div>
 
-                  <ul className="space-y-3 md:space-y-4 mb-8 flex-grow">
+                  <ul className="space-y-3 md:space-y-4 mb-8 flex-grow text-center mb-6 flex-grow">
                     {plan.features && Array.isArray(plan.features) ? (
                       plan.features.map((feature, i) => (
                         <li key={i} className="flex items-center space-x-2 text-sm md:text-base">
@@ -463,7 +463,7 @@ function QuizPlayLanding() {
                         </li>
                       ))
                     ) : (
-                      <li className="text-gray-500">Fitur tidak tersedia</li>
+                      <li className="text-gray-500">Lihat pada halaman detail</li>
                     )}
                   </ul>
 
