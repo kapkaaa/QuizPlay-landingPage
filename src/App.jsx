@@ -176,12 +176,13 @@ function QuizPlayLanding() {
       <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <img src="/public/assets/logo.png" alt="logo" class="w-8 h-8"/>
+            <a href="/" className="flex items-center space-x-2 cursor-pointer">
+              <img src="public/assets/logo.png" alt="logo" className="w-8 h-8" />
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 QuizPlay
               </span>
-            </div>
+            </a>
+
 
             <div className="hidden md:flex space-x-8">
               <button onClick={() => scrollToSection('features')} className="text-gray-700 hover:text-purple-600 transition">Fitur</button>
