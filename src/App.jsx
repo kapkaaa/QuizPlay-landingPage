@@ -1,10 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { GraduationCap, Gamepad2, Trophy, Target, Users, BookOpen, CheckCircle, Star, Menu, X, MessageCircle, Mail, Phone, TrendingUp, Clock, Shield, ArrowRight, Play } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  GraduationCap,
+  Gamepad2,
+  Trophy,
+  Target,
+  Users,
+  BookOpen,
+  CheckCircle,
+  Star,
+  Menu,
+  X,
+  MessageCircle,
+  Mail,
+  TrendingUp,
+  Clock,
+  Shield,
+  ArrowRight,
+  Play,
+  Instagram,
+  Facebook,
+  Youtube
+} from 'lucide-react';
+import { SiTiktok } from 'react-icons/si'; // dari simple-icons
 import { createClient } from '@supabase/supabase-js';
 import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 
-// Konfigurasi Supabase - GANTI dengan kredensial Anda
+// Konfigurasi Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://cllzeodekryrguojsjvr.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbHplb2Rla3J5cmd1b2pzanZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MzI4OTYsImV4cCI6MjA3OTEwODg5Nn0.DnSceF8Y_SUEJI2PnBaSMeKoOFUXdmCVMwJlt49Rk6A';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -18,8 +40,6 @@ function QuizPlayLanding() {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // State untuk data dari database
   const [statistics, setStatistics] = useState({
     totalStudents: 0,
     totalSchools: 0,
@@ -29,9 +49,11 @@ function QuizPlayLanding() {
   const [pricingPlans, setPricingPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Inisialisasi EmailJS dan fetch data dari database
   useEffect(() => {
-    emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '');
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
+    if (publicKey) {
+      emailjs.init(publicKey);
+    }
     fetchStatistics();
     fetchTestimonials();
     fetchPricingPlans();
@@ -41,7 +63,6 @@ function QuizPlayLanding() {
     try {
       const { count: studentCount } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'student');
       const { count: schoolCount } = await supabase.from('schools').select('*', { count: 'exact', head: true });
-
       const { data: attemptsData } = await supabase.from('quiz_attempts').select('percentage').eq('status', 'completed');
 
       let avgSatisfaction = 98;
@@ -69,25 +90,15 @@ function QuizPlayLanding() {
         .eq('is_published', true)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Supabase error fetching testimonials:', error.message);
-        throw error;
-      }
-
-      if (data && data.length > 0) {
-        console.log('Testimonials fetched:', data);
-        setTestimonials(data);
-      } else {
-        console.log('No testimonials found');
-      }
+      if (error) throw error;
+      setTestimonials(data || []);
     } catch (error) {
-      console.error('Error in fetchTestimonials:', error);
+      console.error('Error fetching testimonials:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch pricing plans dari tabel templates
   const fetchPricingPlans = async () => {
     try {
       const { data, error } = await supabase
@@ -96,23 +107,12 @@ function QuizPlayLanding() {
         .eq('is_published', true)
         .order('price', { ascending: true });
 
-      if (error) {
-        console.error('Supabase error fetching pricing plans:', error.message);
-        throw error;
-      }
-
-      if (data && data.length > 0) {
-        setPricingPlans(data);
-      } else {
-        console.log('No pricing plans found');
-      }
+      if (error) throw error;
+      setPricingPlans(data || []);
     } catch (error) {
-      console.error('Error in fetchPricingPlans:', error);
+      console.error('Error fetching pricing plans:', error);
     } finally {
-      // Set loading to false after all data is fetched
-      if (statistics.totalStudents !== 0 && testimonials.length !== 0) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
@@ -121,8 +121,7 @@ function QuizPlayLanding() {
     setIsSubmitting(true);
 
     try {
-      // Simpan ke database Supabase
-      const { data, error } = await supabase.from('contact_submissions').insert([{
+      const { error } = await supabase.from('contact_submissions').insert([{
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -131,13 +130,12 @@ function QuizPlayLanding() {
       }]);
       if (error) throw error;
 
-      // Kirim email menggunakan EmailJS - semua field dikirim
       const templateParams = {
         from_name: formData.name,
         from_email: formData.email,
         from_phone: formData.phone,
         message: formData.message,
-        to_email: 'admin@quizplay.com' // Ganti dengan email tujuan Anda
+        to_email: 'admin@quizplay.com'
       };
 
       await emailjs.send(
@@ -151,15 +149,7 @@ function QuizPlayLanding() {
       setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
-      if (error.status === 400) {
-        alert('❌ Format data tidak valid. Silakan periksa kembali isian Anda.');
-      } else if (error.status === 401) {
-        alert('❌ Akses ditolak. Silakan hubungi administrator.');
-      } else if (error.status >= 500) {
-        alert('❌ Terjadi kesalahan pada server. Silakan coba lagi nanti.');
-      } else {
-        alert('❌ Terjadi kesalahan. Silakan coba lagi.');
-      }
+      alert('❌ Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
     }
@@ -182,7 +172,6 @@ function QuizPlayLanding() {
                 QuizPlay
               </span>
             </a>
-
 
             <div className="hidden md:flex space-x-8">
               <button onClick={() => scrollToSection('features')} className="text-gray-700 hover:text-purple-600 transition">Fitur</button>
@@ -227,7 +216,7 @@ function QuizPlayLanding() {
                 </span>
               </h1>
               <p className="text-xl text-gray-600">
-              QuizPlay adalah layanan pembuatan website pendidikan berbasis game yang menghadirkan pengalaman menjawab soal layaknya bermain game. Dengan QuizPlay, proses belajar menjadi lebih interaktif, seru, dan menyenangkan sehingga siswa lebih termotivasi saat memahami materi.
+                QuizPlay adalah layanan pembuatan website pendidikan berbasis game yang menghadirkan pengalaman menjawab soal layaknya bermain game. Dengan QuizPlay, proses belajar menjadi lebih interaktif, seru, dan menyenangkan sehingga siswa lebih termotivasi saat memahami materi.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button onClick={() => scrollToSection('pricing')} className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-1 transition flex items-center justify-center space-x-2">
@@ -322,7 +311,6 @@ function QuizPlayLanding() {
               { step: '04', title: 'Lihat Leaderboard', desc: 'Guru dan siswa dapat melihat progress pengerjaan siswa', icon: TrendingUp }
             ].map((step, i) => (
               <div key={i} className="relative">
-                {/* Kartu responsif */}
                 <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition w-full min-h-[250px] flex flex-col">
                   <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
                     {step.step}
@@ -331,8 +319,6 @@ function QuizPlayLanding() {
                   <h3 className="text-xl font-bold mb-2">{step.title}</h3>
                   <p className="text-gray-600 text-sm flex-grow">{step.desc}</p>
                 </div>
-
-                {/* Panah hanya muncul di layar lg ke atas, dan hanya antar kartu */}
                 {i < 3 && (
                   <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2">
                     <ArrowRight className="w-8 h-8 text-purple-300" />
@@ -371,7 +357,7 @@ function QuizPlayLanding() {
         </div>
       </section>
 
-      {/* Testimonials - Scrollable Horizontal */}
+      {/* Testimonials */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -443,9 +429,6 @@ function QuizPlayLanding() {
                     <h3 className="text-2xl font-bold mb-2 break-words">{plan.name}</h3>
                     <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">
                       {plan.price === 0 ? 'Gratis' : `Rp ${plan.price.toLocaleString()}`}
-                      {plan.price > 0 && plan.category !== 'paket sekolah' && (
-                        <span className="text-lg"></span>
-                      )}
                     </div>
                     <p className="text-gray-600 text-sm md:text-base break-words">
                       {plan.description?.length > 100
@@ -457,7 +440,7 @@ function QuizPlayLanding() {
                     )}
                   </div>
 
-                  <ul className="space-y-3 md:space-y-4 mb-8 flex-grow text-center mb-6 flex-grow">
+                  <ul className="space-y-3 md:space-y-4 mb-8 flex-grow text-center">
                     {plan.features && Array.isArray(plan.features) ? (
                       plan.features.map((feature, i) => (
                         <li key={i} className="flex items-center space-x-2 text-sm md:text-base">
@@ -517,6 +500,7 @@ function QuizPlayLanding() {
 
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
+              {/* WhatsApp */}
               <a
                 href="https://wa.me/6285748806949"
                 target="_blank"
@@ -532,6 +516,7 @@ function QuizPlayLanding() {
                 </div>
               </a>
 
+              {/* Email
               <div className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <Mail className="w-6 h-6 text-blue-600" />
@@ -540,8 +525,55 @@ function QuizPlayLanding() {
                   <div className="font-semibold">Email</div>
                   <div className="text-gray-600">quizplay.ofc@gmail.com</div>
                 </div>
-              </div>
+              </div> */}
 
+              {/* Instagram */}
+              <a
+                href="https://instagram.com/quizplay.ofc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4 hover:shadow-xl transition"
+              >
+                <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                  <Instagram className="w-6 h-6 text-pink-600" />
+                </div>
+                <div>
+                  <div className="font-semibold">Instagram</div>
+                  <div className="text-gray-600">@quizplay.ofc</div>
+                </div>
+              </a>
+
+              {/* TikTok */}
+              <a
+                href="https://tiktok.com/@quizplay.ofc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4 hover:shadow-xl transition"
+              >
+                <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+                  <SiTiktok className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="font-semibold">TikTok</div>
+                  <div className="text-gray-600">@quizplay.ofc</div>
+                </div>
+              </a>
+
+              {/* Facebook */}
+              <a
+                href="https://facebook.com/profile.php?id=61584117713497"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4 hover:shadow-xl transition"
+              >
+                <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
+                  <Facebook className="w-6 h-6 text-blue-700" />
+                </div>
+                <div>
+                  <div className="font-semibold">Facebook</div>
+                  <div className="text-gray-600">QuizPlay Official</div>
+                </div>
+              </a>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg space-y-4">
@@ -564,7 +596,7 @@ function QuizPlayLanding() {
                 disabled={isSubmitting}
               />
               <input
-                type="number"
+                type="tel"
                 placeholder="No. Telepon"
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
@@ -610,30 +642,28 @@ function QuizPlayLanding() {
               <ul className="space-y-2 text-gray-400">
                 <li><button onClick={() => scrollToSection('features')} className="hover:text-white transition">Fitur</button></li>
                 <li><button onClick={() => scrollToSection('pricing')} className="hover:text-white transition">Harga</button></li>
-                <li><a href="#" className="hover:text-white transition">Demo</a></li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-bold mb-4">Perusahaan</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Tentang Kami</a></li>
-                <li><a href="#" className="hover:text-white transition">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition">Karir</a></li>
+                <li><a href="https://lynk.id/quizplay" className="hover:text-white transition">Tentang Kami</a></li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-bold mb-4">Ikuti Kami</h3>
               <div className="flex space-x-4">
-                <a href="https://instagram.com/quizplay.ofc" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
-                  <span className="text-sm">IG</span>
+                <a href="https://instagram.com/quizplay.ofc" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center hover:bg-pink-600 transition">
+                  <Instagram className="w-5 h-5 text-white" />
                 </a>
-                <a href="https://tiktok.com/@quizplay.ofc" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
-                  <span className="text-sm">TT</span>
+                <a href="https://tiktok.com/@quizplay.ofc" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition">
+                <SiTiktok className="w-5 h-5 text-white" />
+
                 </a>
-                <a href="https://facebook.com/profile.php?id=61584117713497" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
-                  <span className="text-sm">FB</span>
+                <a href="https://facebook.com/profile.php?id=61584117713497" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition">
+                  <Facebook className="w-5 h-5 text-white" />
                 </a>
               </div>
             </div>
