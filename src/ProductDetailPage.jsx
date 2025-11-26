@@ -83,7 +83,7 @@ export default function ProductDetailPage() {
               <span>Kembali</span>
             </button>
             <div className="flex items-center space-x-2">
-              <img src="assets/logo1.png" alt="logo" class="w-8 h-8"/>
+              <img src="/assets/logo1.png" alt="logo" class="w-8 h-8"/>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 QuizPlay
               </span>
