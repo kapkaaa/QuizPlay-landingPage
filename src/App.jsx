@@ -314,22 +314,25 @@ function QuizPlayLanding() {
             <p className="text-xl text-gray-600">Mudah digunakan dalam 4 langkah sederhana</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full h-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { step: '01', title: 'Guru Membuat Soal', desc: 'Guru memberikan materi pembelajaran kepada kami lalu kami memproses game yang di inginkan', icon: BookOpen },
+              { step: '01', title: 'Guru Membuat Soal', desc: 'Guru memberikan materi pembelajaran kepada kami lalu kami memproses game yang diinginkan', icon: BookOpen },
               { step: '02', title: 'Siswa Bermain Game Pembelajaran', desc: 'Siswa mengakses website dan bermain seperti game seru', icon: Gamepad2 },
               { step: '03', title: 'Dapatkan Poin', desc: 'Sistem otomatis memberikan reward untuk motivasi', icon: Trophy },
               { step: '04', title: 'Lihat Leaderboard', desc: 'Guru dan siswa dapat melihat progress pengerjaan siswa', icon: TrendingUp }
             ].map((step, i) => (
               <div key={i} className="relative">
-                <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition w-[250px] h-[280px] flex flex-col">
+                {/* Kartu responsif */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition w-full min-h-[250px] flex flex-col">
                   <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
                     {step.step}
                   </div>
-                  <step.icon className="w-12 h-12 text-purple-600 mb-4 mt-4" />
+                  <step.icon className="w-12 h-12 text-purple-600 mb-4 mt-4 flex-shrink-0" />
                   <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                  <p className="text-gray-600">{step.desc}</p>
+                  <p className="text-gray-600 text-sm flex-grow">{step.desc}</p>
                 </div>
+
+                {/* Panah hanya muncul di layar lg ke atas, dan hanya antar kartu */}
                 {i < 3 && (
                   <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2">
                     <ArrowRight className="w-8 h-8 text-purple-300" />
