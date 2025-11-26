@@ -518,7 +518,7 @@ function QuizPlayLanding() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <a
-                href="https://wa.me/628574880949"
+                href="https://wa.me/6285748806949"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white p-6 rounded-2xl shadow-lg flex items-center space-x-4 hover:shadow-xl transition"
