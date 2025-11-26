@@ -177,7 +177,7 @@ function QuizPlayLanding() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <a href="/" className="flex items-center space-x-2 cursor-pointer">
-              <img src="public/assets/logo.png" alt="logo" className="w-8 h-8" />
+              <img src="/assets/logo.png" alt="logo" className="w-8 h-8" />
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 QuizPlay
               </span>
