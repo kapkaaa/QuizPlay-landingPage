@@ -138,16 +138,15 @@ export default function ProductDetailPage() {
             <div className="bg-white rounded-3xl p-8 shadow-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Fitur Lengkap</h2>
               <div className="grid md:grid-cols-2 gap-6">
-                {plan.features && Array.isArray(plan.features) ? (
-                  plan.features.map((features, i) => (
+              {plan.features
+                ? plan.features.split(',').map((feature, i) => (
                     <div key={i} className="flex items-start space-x-3">
                       <CheckCircle className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{features}</span>
+                      <span className="text-gray-700">{feature.trim()}</span>
                     </div>
                   ))
-                ) : (
-                  <p className="text-gray-500">Fitur tidak tersedia</p>
-                )}
+                : <p className="text-gray-500">Fitur tidak tersedia</p>
+              }
               </div>
             </div>
 
