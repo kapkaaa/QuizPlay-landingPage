@@ -26,11 +26,12 @@ export default function ProductDetailPage() {
         .select('*')
         .eq('id', id)
         .single();
-
-      if (error) throw error;
-
-      if (data) {
-        setPlan(data);
+        
+        
+        if (error) throw error;
+        
+        if (data) {
+          setPlan(data);
       } else {
         console.log('Plan not found');
       }
@@ -108,26 +109,40 @@ export default function ProductDetailPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column - Product Info */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Main Feature Image */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg">
-              <div className="aspect-video bg-gradient-to-br from-purple-400 to-blue-500 rounded-2xl flex items-center justify-center">
-                <div className="text-center text-white">
-                  <Gamepad2 className="w-16 h-16 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold">Preview Game</h3>
-                  <p>Visualisasi dari game yang akan Anda dapatkan</p>
+          {plan && (
+            <div 
+              className="rounded-3xl overflow-hidden bg-white border shadow-md hover:shadow-xl transition cursor-pointer"
+              onClick={() => window.open(plan.preview_url, "_blank")}
+            >
+              
+              {/* FOTO PREVIEW */}
+              <div className="w-80 mx-auto rounded-3xl overflow-hidden bg-white border shadow-md hover:shadow-xl transition cursor-pointer">
+                <div className="aspect-[16/9] bg-gray-100">
+                  <img 
+                    src={plan.thumbnail_url}
+                    alt={plan.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
+
+              {/* BAWAHNYA */}
+              <div className="p-5">
+                <h3 className="text-lg font-semibold text-gray-900">Preview Game</h3>
+                <p className="text-gray-500 text-sm">Klik untuk melihat detail atau demo</p>
+              </div>
             </div>
+          )}
 
             {/* Features Section */}
             <div className="bg-white rounded-3xl p-8 shadow-lg">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Fitur Lengkap</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {plan.features && Array.isArray(plan.features) ? (
-                  plan.features.map((feature, i) => (
+                  plan.features.map((features, i) => (
                     <div key={i} className="flex items-start space-x-3">
                       <CheckCircle className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
+                      <span className="text-gray-700">{features}</span>
                     </div>
                   ))
                 ) : (
@@ -150,7 +165,6 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="flex justify-between items-start py-3 border-b border-gray-100 flex-wrap">
                   <span className="font-semibold text-gray-700">Fitur Tambahan:</span>
-
                   <span className="text-gray-600 max-w-[70%] text-right break-words">
                     {plan.features || 'Tersedia'}
                   </span>
