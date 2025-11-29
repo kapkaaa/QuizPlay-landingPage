@@ -652,21 +652,24 @@ function QuizPlayLanding() {
               </ul>
             </div>
 
-            <div>
-              <h3 className="font-bold mb-4">Ikuti Kami</h3>
-              <div className="flex space-x-4">
-                <a href="https://instagram.com/quizplay.ofc" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center hover:bg-pink-600 transition">
-                  <Instagram className="w-5 h-5 text-white" />
-                </a>
-                <a href="https://tiktok.com/@quizplay.ofc" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition">
-                <SiTiktok className="w-5 h-5 text-white" />
+            <div className="flex flex-col items-center">
+              <h3 className="font-bold mb-4 text-center">Metode Pembayaran</h3>
 
-                </a>
-                <a href="https://facebook.com/profile.php?id=61584117713497" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition">
-                  <Facebook className="w-5 h-5 text-white" />
-                </a>
+              <div className="flex space-x-4">
+                <div className="w-24 h-14 bg-gray-700/70 rounded-xl flex items-center justify-center hover:bg-gray-600/80 transition">
+                  <img src="/assets/Logo_QRIS.svg" className="w-10 h-10" />
+                </div>
+
+                <div className="w-24 h-14 bg-gray-700/70 rounded-xl flex items-center justify-center hover:bg-gray-600/80 transition">
+                  <img src="/assets/Logo-jago.svg" className="w-10 h-10" />
+                </div>
+
+                <div className="w-24 h-14 bg-gray-700/70 rounded-xl flex items-center justify-center hover:bg-gray-600/80 transition">
+                  <img src="/assets/LogoDana.svg" className="w-10 h-10" />
+                </div>
               </div>
             </div>
+
           </div>
 
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
