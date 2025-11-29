@@ -109,30 +109,40 @@ export default function ProductDetailPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column - Product Info */}
           <div className="lg:col-span-2 space-y-8">
-          {plan && (
-            <div 
-              className="rounded-3xl overflow-hidden bg-white border shadow-md hover:shadow-xl transition cursor-pointer"
-              onClick={() => window.open(plan.preview_url, "_blank")}
-            >
-              
-              {/* FOTO PREVIEW */}
-              <div className="w-80 mx-auto rounded-3xl overflow-hidden bg-white border shadow-md hover:shadow-xl transition cursor-pointer">
-                <div className="aspect-[16/9] bg-gray-100">
-                  <img 
-                    src={plan.thumbnail_url}
-                    alt={plan.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+            {plan && (
+              <div
+                className="rounded-3xl overflow-hidden bg-white border shadow-md hover:shadow-xl transition cursor-pointer"
+                onClick={() => plan.preview_url && window.open(plan.preview_url, "_blank")}
+              >
+                {plan.thumbnail_url && plan.preview_url ? (
+                  // Card dengan thumbnail dan preview_url
+                  <div className="w-80 mx-auto rounded-3xl overflow-hidden bg-white border shadow-md hover:shadow-xl transition cursor-pointer">
+                    <div className="aspect-[16/9] bg-gray-100">
+                      <img 
+                        src={plan.thumbnail_url}
+                        alt={plan.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <h3 className="text-lg font-semibold text-gray-900">Preview Game</h3>
+                      <p className="text-gray-500 text-sm">Klik untuk melihat detail atau demo</p>
+                    </div>
+                  </div>
+                ) : (
+                  // Card default jika thumbnail atau preview_url tidak ada
+                  <div className="bg-white rounded-3xl p-8 shadow-lg">
+                    <div className="aspect-video bg-gradient-to-br from-purple-400 to-blue-500 rounded-2xl flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Gamepad2 className="w-16 h-16 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold">Preview Game</h3>
+                        <p>Visualisasi dari game yang akan Anda dapatkan akan tampil disini</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-
-              {/* BAWAHNYA */}
-              <div className="p-5">
-                <h3 className="text-lg font-semibold text-gray-900">Preview Game</h3>
-                <p className="text-gray-500 text-sm">Klik untuk melihat detail atau demo</p>
-              </div>
-            </div>
-          )}
+            )}
 
             {/* Features Section */}
             <div className="bg-white rounded-3xl p-8 shadow-lg">
