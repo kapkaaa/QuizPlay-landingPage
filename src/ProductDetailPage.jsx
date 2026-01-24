@@ -135,8 +135,7 @@ export default function ProductDetailPage() {
                     <div className="aspect-video bg-gradient-to-br from-purple-400 to-blue-500 rounded-2xl flex items-center justify-center">
                       <div className="text-center text-white">
                         <Gamepad2 className="w-16 h-16 mx-auto mb-4" />
-                        <h3 className="text-2xl font-bold">Preview Game</h3>
-                        <p>Visualisasi dari game yang akan Anda dapatkan akan tampil disini</p>
+                        <h3 className="text-2xl font-bold">Coming Soon</h3>
                       </div>
                     </div>
                   </div>
